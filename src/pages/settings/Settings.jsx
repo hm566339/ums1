@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../components/ui/Button'
 import { Label } from '../../components/ui/Label'
 import { Input } from '../../components/ui/Input'
-import { Moon, Sun, Mail, Lock, LogOut, User, Shield, Bell, Palette, Globe, Save } from 'lucide-react'
+import { Moon, Sun, Mail, Lock, LogOut, User, Shield, Bell, Palette, Globe, Save, Check } from 'lucide-react'
+import { cn } from '../../utils/cn'
 
 export function Settings() {
   const { theme, toggleTheme } = useTheme()
@@ -51,7 +52,7 @@ export function Settings() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
         <p className="text-muted-foreground mt-1">Manage your account and application preferences</p>
       </div>
 
@@ -59,21 +60,24 @@ export function Settings() {
         {/* Sidebar Navigation */}
         <div className="lg:col-span-1">
           <Card>
-            <CardContent className="p-4 space-y-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 ${
-                    activeTab === tab.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground hover:bg-muted'
-                  }`}
-                >
-                  <tab.icon className="w-5 h-5" />
-                  <span className="text-sm font-medium">{tab.label}</span>
-                </button>
-              ))}
+            <CardContent className="p-3">
+              <div className="space-y-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      'w-full text-left px-4 py-3 rounded-xl transition-all flex items-center gap-3',
+                      activeTab === tab.id
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-foreground hover:bg-muted'
+                    )}
+                  >
+                    <tab.icon className="w-5 h-5" />
+                    <span className="text-sm font-medium">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -84,22 +88,26 @@ export function Settings() {
           {activeTab === 'general' && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  General Settings
-                </CardTitle>
-                <CardDescription>Configure general system preferences</CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10">
+                    <Globe className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base">General Settings</CardTitle>
+                    <CardDescription>Configure general system preferences</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
                     <select
                       id="language"
                       name="language"
                       value={formData.language}
                       onChange={handleInputChange}
-                      className="w-full h-10 mt-2 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                      className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     >
                       <option>English</option>
                       <option>Urdu</option>
@@ -108,14 +116,14 @@ export function Settings() {
                       <option>Arabic</option>
                     </select>
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
                     <select
                       id="timezone"
                       name="timezone"
                       value={formData.timezone}
                       onChange={handleInputChange}
-                      className="w-full h-10 mt-2 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                      className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     >
                       <option>PKT (Pakistan Time)</option>
                       <option>UTC (Coordinated Universal Time)</option>
@@ -125,10 +133,10 @@ export function Settings() {
                     </select>
                   </div>
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-end pt-4 border-t border-border">
                   <Button onClick={handleSave} isLoading={isSaving}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes</span>
                   </Button>
                 </div>
               </CardContent>
@@ -139,15 +147,19 @@ export function Settings() {
           {activeTab === 'account' && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  Account Settings
-                </CardTitle>
-                <CardDescription>Update your personal information</CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-info/10">
+                    <User className="w-5 h-5 text-info" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base">Account Settings</CardTitle>
+                    <CardDescription>Update your personal information</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center gap-4 p-4 rounded-lg bg-muted">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold">
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary/20">
                     {formData.fullName.charAt(0)}
                   </div>
                   <div>
@@ -160,17 +172,16 @@ export function Settings() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
                     <Input
                       id="fullName"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className="mt-2"
                     />
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
                     <Input
                       id="email"
@@ -178,25 +189,23 @@ export function Settings() {
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="mt-2"
                     />
                   </div>
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-2 space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
                       id="phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="mt-2"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end pt-4 border-t border-border">
                   <Button onClick={handleSave} isLoading={isSaving}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes</span>
                   </Button>
                 </div>
               </CardContent>
@@ -207,16 +216,20 @@ export function Settings() {
           {activeTab === 'theme' && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="w-5 h-5" />
-                  Appearance
-                </CardTitle>
-                <CardDescription>Customize your visual preferences</CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary/10">
+                    <Palette className="w-5 h-5 text-secondary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base">Appearance</CardTitle>
+                    <CardDescription>Customize your visual preferences</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-border rounded-2xl">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-muted">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted">
                       {theme === 'dark' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
                     </div>
                     <div>
@@ -239,27 +252,35 @@ export function Settings() {
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     onClick={() => theme !== 'light' && toggleTheme()}
-                    className={`p-4 rounded-lg border-2 transition ${
-                      theme === 'light' ? 'border-primary' : 'border-border hover:border-muted-foreground'
-                    }`}
+                    className={cn(
+                      'p-4 rounded-2xl border-2 transition-all',
+                      theme === 'light' ? 'border-primary shadow-lg shadow-primary/10' : 'border-border hover:border-muted-foreground'
+                    )}
                   >
-                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                    <div className="bg-white rounded-xl p-4 shadow-sm">
                       <div className="h-2 w-16 bg-gray-200 rounded mb-2" />
                       <div className="h-2 w-12 bg-gray-300 rounded" />
                     </div>
-                    <p className="text-sm font-medium text-foreground mt-2">Light</p>
+                    <div className="flex items-center justify-center gap-2 mt-3">
+                      {theme === 'light' && <Check className="w-4 h-4 text-primary" />}
+                      <p className="text-sm font-medium text-foreground">Light</p>
+                    </div>
                   </button>
                   <button 
                     onClick={() => theme !== 'dark' && toggleTheme()}
-                    className={`p-4 rounded-lg border-2 transition ${
-                      theme === 'dark' ? 'border-primary' : 'border-border hover:border-muted-foreground'
-                    }`}
+                    className={cn(
+                      'p-4 rounded-2xl border-2 transition-all',
+                      theme === 'dark' ? 'border-primary shadow-lg shadow-primary/10' : 'border-border hover:border-muted-foreground'
+                    )}
                   >
-                    <div className="bg-slate-900 rounded-lg p-4">
+                    <div className="bg-slate-900 rounded-xl p-4">
                       <div className="h-2 w-16 bg-slate-700 rounded mb-2" />
                       <div className="h-2 w-12 bg-slate-600 rounded" />
                     </div>
-                    <p className="text-sm font-medium text-foreground mt-2">Dark</p>
+                    <div className="flex items-center justify-center gap-2 mt-3">
+                      {theme === 'dark' && <Check className="w-4 h-4 text-primary" />}
+                      <p className="text-sm font-medium text-foreground">Dark</p>
+                    </div>
                   </button>
                 </div>
               </CardContent>
@@ -270,13 +291,17 @@ export function Settings() {
           {activeTab === 'notifications' && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="w-5 h-5" />
-                  Notification Preferences
-                </CardTitle>
-                <CardDescription>Manage how you receive notifications</CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-warning/10">
+                    <Bell className="w-5 h-5 text-warning" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base">Notification Preferences</CardTitle>
+                    <CardDescription>Manage how you receive notifications</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {[
                   { id: 'email', label: 'Email Notifications', description: 'Receive notifications via email' },
                   { id: 'browser', label: 'Browser Notifications', description: 'Get push notifications in your browser' },
@@ -284,14 +309,14 @@ export function Settings() {
                   { id: 'payments', label: 'Payment Updates', description: 'Notify for fee payments and dues' },
                   { id: 'announcements', label: 'System Announcements', description: 'Important system updates' },
                 ].map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                  <div key={item.id} className="flex items-center justify-between p-4 border border-border rounded-xl">
                     <div>
                       <p className="font-medium text-foreground">{item.label}</p>
                       <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" defaultChecked className="sr-only peer" />
-                      <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
                 ))}
@@ -304,67 +329,65 @@ export function Settings() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    Security Settings
-                  </CardTitle>
-                  <CardDescription>Manage your account security</CardDescription>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-success/10">
+                      <Shield className="w-5 h-5 text-success" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Security Settings</CardTitle>
+                      <CardDescription>Manage your account security</CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-4 border border-border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-muted">
-                          <Lock className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Change Password</p>
-                          <p className="text-sm text-muted-foreground">Update your password regularly for security</p>
-                        </div>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between p-4 border border-border rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted">
+                        <Lock className="w-5 h-5 text-muted-foreground" />
                       </div>
-                      <Button variant="outline">Change</Button>
+                      <div>
+                        <p className="font-medium text-foreground">Change Password</p>
+                        <p className="text-sm text-muted-foreground">Update your password regularly for security</p>
+                      </div>
                     </div>
+                    <Button variant="outline" size="sm">Change</Button>
                   </div>
 
-                  <div className="p-4 border border-border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-muted">
-                          <Mail className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Two-Factor Authentication</p>
-                          <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
-                        </div>
+                  <div className="flex items-center justify-between p-4 border border-border rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted">
+                        <Mail className="w-5 h-5 text-muted-foreground" />
                       </div>
-                      <Button variant="outline">Enable</Button>
+                      <div>
+                        <p className="font-medium text-foreground">Two-Factor Authentication</p>
+                        <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
+                      </div>
                     </div>
+                    <Button variant="outline" size="sm">Enable</Button>
                   </div>
 
-                  <div className="p-4 border border-border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-muted">
-                          <Shield className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Active Sessions</p>
-                          <p className="text-sm text-muted-foreground">Manage devices where you&apos;re logged in</p>
-                        </div>
+                  <div className="flex items-center justify-between p-4 border border-border rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted">
+                        <Shield className="w-5 h-5 text-muted-foreground" />
                       </div>
-                      <Button variant="outline">View</Button>
+                      <div>
+                        <p className="font-medium text-foreground">Active Sessions</p>
+                        <p className="text-sm text-muted-foreground">Manage devices where you&apos;re logged in</p>
+                      </div>
                     </div>
+                    <Button variant="outline" size="sm">View</Button>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Logout Card */}
-              <Card className="border-red-200 dark:border-red-900">
-                <CardContent className="pt-6">
+              <Card className="border-danger/30">
+                <CardContent className="p-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-red-500/10">
-                        <LogOut className="w-5 h-5 text-red-500" />
+                      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-danger/10">
+                        <LogOut className="w-5 h-5 text-danger" />
                       </div>
                       <div>
                         <p className="font-medium text-foreground">Sign Out</p>
@@ -372,8 +395,8 @@ export function Settings() {
                       </div>
                     </div>
                     <Button variant="destructive" onClick={handleLogout}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
                     </Button>
                   </div>
                 </CardContent>

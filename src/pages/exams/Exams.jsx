@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, Edit, Trash2, Calendar, Clock, MapPin, Users, FileText } from 'lucide-react'
+import { Plus, Edit, Trash2, Calendar, Clock, MapPin, Users, FileText, Grid3X3, List } from 'lucide-react'
 import { DataTable } from '../../components/tables/DataTable'
 import { Button } from '../../components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
@@ -7,12 +7,14 @@ import { Modal } from '../../components/ui/Modal'
 import { Input } from '../../components/ui/Input'
 import { Label } from '../../components/ui/Label'
 import { examData as initialExamData, courseData } from '../../data/dummyData'
+import { cn } from '../../utils/cn'
 
 export function Exams() {
   const [exams, setExams] = useState(initialExamData)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedExam, setSelectedExam] = useState(null)
   const [filterStatus, setFilterStatus] = useState('')
+  const [viewMode, setViewMode] = useState('grid')
   const [formData, setFormData] = useState({
     title: '',
     course: '',
@@ -32,6 +34,13 @@ export function Exams() {
   const scheduledExams = exams.filter(e => e.status === 'Scheduled').length
   const completedExams = exams.filter(e => e.status === 'Completed').length
   const upcomingExams = exams.filter(e => e.status === 'Upcoming').length
+
+  const stats = [
+    { label: 'Total Exams', value: exams.length, icon: FileText, color: 'primary' },
+    { label: 'Scheduled', value: scheduledExams, icon: Calendar, color: 'info' },
+    { label: 'Upcoming', value: upcomingExams, icon: Clock, color: 'warning' },
+    { label: 'Completed', value: completedExams, icon: FileText, color: 'success' },
+  ]
 
   const handleAddExam = () => {
     setSelectedExam(null)
@@ -95,150 +104,47 @@ export function Exams() {
     }
   }
 
+  const getStatusStyles = (status) => {
+    switch(status) {
+      case 'Scheduled': return 'bg-info/10 text-info'
+      case 'Upcoming': return 'bg-warning/10 text-warning'
+      case 'Completed': return 'bg-success/10 text-success'
+      default: return 'bg-muted text-muted-foreground'
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Examination Management</h1>
+          <h1 className="text-2xl font-bold text-foreground">Examination Management</h1>
           <p className="text-muted-foreground mt-1">Schedule and manage exams across all departments</p>
         </div>
-        <Button size="md" onClick={handleAddExam}>
-          <Plus className="w-4 h-4 mr-2" />
-          Schedule Exam
+        <Button onClick={handleAddExam}>
+          <Plus className="w-4 h-4" />
+          <span>Schedule Exam</span>
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Exams</p>
-                <p className="text-3xl font-bold text-foreground mt-1">{exams.length}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-primary/10">
-                <FileText className="w-6 h-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Scheduled</p>
-                <p className="text-3xl font-bold text-blue-500 mt-1">{scheduledExams}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-blue-500/10">
-                <Calendar className="w-6 h-6 text-blue-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Upcoming</p>
-                <p className="text-3xl font-bold text-orange-500 mt-1">{upcomingExams}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-orange-500/10">
-                <Clock className="w-6 h-6 text-orange-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-3xl font-bold text-green-500 mt-1">{completedExams}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-green-500/10">
-                <FileText className="w-6 h-6 text-green-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filter */}
-      <div className="flex gap-2">
-        {['', 'Scheduled', 'Upcoming', 'Completed'].map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilterStatus(status)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filterStatus === status
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            }`}
-          >
-            {status || 'All'}
-          </button>
-        ))}
-      </div>
-
-      {/* Exam Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredExams.map((exam) => (
-          <Card key={exam.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, idx) => (
+          <Card key={idx}>
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
                 <div>
-                  <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium mb-2 ${
-                    exam.status === 'Scheduled' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' :
-                    exam.status === 'Upcoming' ? 'bg-orange-500/10 text-orange-700 dark:text-orange-400' :
-                    'bg-green-500/10 text-green-700 dark:text-green-400'
-                  }`}>
-                    {exam.status}
-                  </span>
-                  <CardTitle className="text-lg">{exam.title}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
                 </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => handleEditExam(exam)}
-                    className="p-1.5 rounded-lg text-blue-500 hover:bg-blue-500/10 transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(exam.id)}
-                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <FileText className="w-4 h-4" />
-                <span>{exam.course} - {exam.courseName}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4" />
-                <span>{exam.date}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="w-4 h-4" />
-                <span>{exam.time} ({exam.duration})</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                <span>{exam.room}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users className="w-4 h-4" />
-                <span>{exam.totalStudents} students</span>
-              </div>
-              <div className="pt-2 border-t border-border">
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Total Marks: {exam.totalMarks}</span>
-                  <span>Passing: {exam.passingMarks}</span>
+                <div className={cn(
+                  'flex items-center justify-center w-11 h-11 rounded-xl',
+                  stat.color === 'primary' && 'bg-primary/10 text-primary',
+                  stat.color === 'info' && 'bg-info/10 text-info',
+                  stat.color === 'warning' && 'bg-warning/10 text-warning',
+                  stat.color === 'success' && 'bg-success/10 text-success'
+                )}>
+                  <stat.icon className="w-5 h-5" />
                 </div>
               </div>
             </CardContent>
@@ -246,46 +152,160 @@ export function Exams() {
         ))}
       </div>
 
+      {/* Filters and View Toggle */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2">
+          {['', 'Scheduled', 'Upcoming', 'Completed'].map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={cn(
+                'px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                filterStatus === status
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              )}
+            >
+              {status || 'All'}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1 p-1 bg-muted rounded-xl">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={cn(
+              'p-2 rounded-lg transition-colors',
+              viewMode === 'grid' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Grid3X3 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={cn(
+              'p-2 rounded-lg transition-colors',
+              viewMode === 'list' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Exam Cards Grid */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredExams.map((exam) => (
+            <Card key={exam.id} hover>
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className={cn(
+                      'inline-flex px-2.5 py-1 rounded-lg text-xs font-medium mb-2',
+                      getStatusStyles(exam.status)
+                    )}>
+                      {exam.status}
+                    </span>
+                    <CardTitle className="text-base">{exam.title}</CardTitle>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleEditExam(exam)}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-info hover:bg-info/10 transition-colors"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(exam.id)}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText className="w-4 h-4" />
+                    <span className="truncate">{exam.course} - {exam.courseName}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="w-4 h-4" />
+                    <span>{exam.date}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="w-4 h-4" />
+                    <span>{exam.time} ({exam.duration})</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="w-4 h-4" />
+                    <span>{exam.room}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="w-4 h-4" />
+                    <span>{exam.totalStudents} students</span>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-border">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Total: {exam.totalMarks} marks</span>
+                    <span>Passing: {exam.passingMarks} marks</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <DataTable
+          title={`Exam Schedule (${filteredExams.length})`}
+          data={filteredExams}
+          searchableColumns={['title', 'course', 'courseName']}
+          columns={[
+            { key: 'title', label: 'Exam Title' },
+            { 
+              key: 'course', 
+              label: 'Course',
+              render: (row) => (
+                <span className="inline-flex px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-primary">
+                  {row.course}
+                </span>
+              )
+            },
+            { key: 'date', label: 'Date' },
+            { key: 'time', label: 'Time' },
+            { key: 'room', label: 'Room' },
+            { key: 'totalStudents', label: 'Students' },
+            { key: 'status', label: 'Status' },
+          ]}
+          actions={(exam) => (
+            <>
+              <button
+                onClick={() => handleEditExam(exam)}
+                className="p-2 rounded-lg text-muted-foreground hover:text-info hover:bg-info/10 transition-colors"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => handleDelete(exam.id)}
+                className="p-2 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        />
+      )}
+
       {filteredExams.length === 0 && (
         <Card>
-          <CardContent className="pt-12 pb-12 text-center">
+          <CardContent className="py-12 text-center">
             <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
             <p className="text-muted-foreground">No exams found</p>
           </CardContent>
         </Card>
       )}
-
-      {/* Table View */}
-      <DataTable
-        title={`Exam Schedule (${filteredExams.length})`}
-        data={filteredExams}
-        searchableColumns={['title', 'course', 'courseName']}
-        columns={[
-          { key: 'title', label: 'Exam Title' },
-          { key: 'course', label: 'Course' },
-          { key: 'date', label: 'Date' },
-          { key: 'time', label: 'Time' },
-          { key: 'room', label: 'Room' },
-          { key: 'totalStudents', label: 'Students' },
-          { key: 'status', label: 'Status' },
-        ]}
-        actions={(exam) => (
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleEditExam(exam)}
-              className="p-1 rounded-lg text-blue-500 hover:bg-blue-500/10 transition-colors"
-            >
-              <Edit className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => handleDelete(exam.id)}
-              className="p-1 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-      />
 
       {/* Add/Edit Modal */}
       <Modal
@@ -294,9 +314,9 @@ export function Exams() {
         title={selectedExam ? 'Edit Exam' : 'Schedule Exam'}
         size="lg"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 space-y-2">
               <Label htmlFor="title">Exam Title</Label>
               <Input
                 id="title"
@@ -307,13 +327,13 @@ export function Exams() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="course">Course</Label>
               <select
                 id="course"
                 value={formData.course}
                 onChange={(e) => setFormData({ ...formData, course: e.target.value })}
-                className="w-full h-10 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 required
               >
                 <option value="">Select Course</option>
@@ -323,19 +343,19 @@ export function Exams() {
               </select>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
               <input
                 id="date"
                 type="date"
                 value={formData.date}
                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full h-10 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 required
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
               <Input
                 id="time"
@@ -346,7 +366,7 @@ export function Exams() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="duration">Duration</Label>
               <Input
                 id="duration"
@@ -357,7 +377,7 @@ export function Exams() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="room">Room/Venue</Label>
               <Input
                 id="room"
@@ -368,7 +388,7 @@ export function Exams() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="totalMarks">Total Marks</Label>
               <Input
                 id="totalMarks"
@@ -380,7 +400,7 @@ export function Exams() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="passingMarks">Passing Marks</Label>
               <Input
                 id="passingMarks"
@@ -393,7 +413,7 @@ export function Exams() {
             </div>
           </div>
 
-          <div className="flex gap-2 justify-end pt-4">
+          <div className="flex gap-3 justify-end pt-4 border-t border-border">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>

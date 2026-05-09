@@ -5,12 +5,17 @@ import {
   ChevronDown, 
   ChevronRight, 
   Calendar,
-  AlertCircle,
   CheckCircle,
   Clock,
   Download,
-  Eye
+  Eye,
+  Grid3X3,
+  List,
+  AlertCircle
 } from 'lucide-react'
+import { Card, CardContent } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
 import { cn } from '../../utils/cn'
 
 const policies = [
@@ -116,108 +121,6 @@ const policies = [
       'Silence must be maintained in designated quiet study zones.'
     ]
   },
-  {
-    id: 'POL007',
-    title: 'IT and Network Usage Policy',
-    category: 'Facilities',
-    description: 'Guidelines for use of university computers, network resources, email, and internet access.',
-    effectiveDate: '2024-01-01',
-    lastUpdated: '2024-07-01',
-    status: 'Active',
-    version: '2.5',
-    content: [
-      'University network is for academic and research purposes only.',
-      'Downloading copyrighted material without authorization is prohibited.',
-      'Users must not share their login credentials with others.',
-      'Accessing inappropriate or illegal content will result in account suspension.',
-      'All university email communications are subject to monitoring for security purposes.'
-    ]
-  },
-  {
-    id: 'POL008',
-    title: 'Hostel Accommodation Policy',
-    category: 'Residential',
-    description: 'Rules and regulations for students residing in university hostels including room allocation, visitors, and facilities.',
-    effectiveDate: '2024-01-01',
-    lastUpdated: '2024-06-20',
-    status: 'Active',
-    version: '1.6',
-    content: [
-      'Room allocation is based on first-come-first-served basis with priority to outstation students.',
-      'Visitors are allowed only in common areas during designated hours (4 PM - 8 PM).',
-      'Overnight guests are strictly prohibited without prior approval.',
-      'Students must vacate rooms within 48 hours of semester end.',
-      'Damage to hostel property will be charged to the responsible student(s).'
-    ]
-  },
-  {
-    id: 'POL009',
-    title: 'Anti-Harassment Policy',
-    category: 'Disciplinary',
-    description: 'Zero-tolerance policy against harassment, procedures for reporting, and protection of complainants.',
-    effectiveDate: '2024-01-01',
-    lastUpdated: '2024-09-10',
-    status: 'Active',
-    version: '3.1',
-    content: [
-      'Sexual harassment, verbal abuse, and intimidation are strictly prohibited.',
-      'All complaints will be investigated confidentially by the Harassment Committee.',
-      'Complainants are protected from retaliation.',
-      'Anonymous reporting mechanisms are available through the online portal.',
-      'Perpetrators face penalties ranging from warning to permanent expulsion.'
-    ]
-  },
-  {
-    id: 'POL010',
-    title: 'Research Ethics Policy',
-    category: 'Academic',
-    description: 'Guidelines for ethical conduct in research including human subjects, data integrity, and publication ethics.',
-    effectiveDate: '2024-01-01',
-    lastUpdated: '2024-04-25',
-    status: 'Active',
-    version: '2.2',
-    content: [
-      'All research involving human subjects must be approved by the Ethics Review Board.',
-      'Informed consent is mandatory for all research participants.',
-      'Research data must be stored securely and maintained for at least 5 years.',
-      'Fabrication, falsification, and misrepresentation of data is prohibited.',
-      'Proper acknowledgment of funding sources and collaborators is required.'
-    ]
-  },
-  {
-    id: 'POL011',
-    title: 'Grievance Redressal Policy',
-    category: 'Administrative',
-    description: 'Procedures for addressing student grievances and complaints regarding academic and non-academic matters.',
-    effectiveDate: '2024-01-01',
-    lastUpdated: '2024-03-15',
-    status: 'Active',
-    version: '1.4',
-    content: [
-      'Grievances can be submitted online or in writing to the Student Affairs Office.',
-      'Initial response will be provided within 5 working days.',
-      'Complex cases will be referred to the appropriate committee within 10 days.',
-      'Students have the right to appeal decisions within 15 days.',
-      'All grievance proceedings are confidential.'
-    ]
-  },
-  {
-    id: 'POL012',
-    title: 'Scholarship and Financial Aid Policy',
-    category: 'Financial',
-    description: 'Eligibility criteria, application procedures, and conditions for various scholarship and financial aid programs.',
-    effectiveDate: '2024-01-01',
-    lastUpdated: '2024-08-20',
-    status: 'Active',
-    version: '2.4',
-    content: [
-      'Merit scholarships require a minimum CGPA of 3.5 to be eligible.',
-      'Need-based financial aid applications must include income documentation.',
-      'Scholarship recipients must maintain required CGPA each semester.',
-      'Scholarships can be revoked for disciplinary violations.',
-      'External scholarship applications must be routed through the Financial Aid Office.'
-    ]
-  }
 ]
 
 const categories = ['All', 'Academic', 'Financial', 'Disciplinary', 'Facilities', 'Residential', 'Administrative']
@@ -226,7 +129,7 @@ export function Policy() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [expandedPolicy, setExpandedPolicy] = useState(null)
-  const [viewMode, setViewMode] = useState('list') // 'list' or 'grid'
+  const [viewMode, setViewMode] = useState('list')
 
   const filteredPolicies = policies.filter(policy => {
     const matchesSearch = policy.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -235,24 +138,15 @@ export function Policy() {
     return matchesSearch && matchesCategory
   })
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Active': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-      case 'Under Review': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-      case 'Archived': return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-    }
-  }
-
-  const getCategoryColor = (category) => {
+  const getCategoryStyles = (category) => {
     switch (category) {
-      case 'Academic': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-      case 'Financial': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-      case 'Disciplinary': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-      case 'Facilities': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-      case 'Residential': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-      case 'Administrative': return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+      case 'Academic': return 'bg-info/10 text-info'
+      case 'Financial': return 'bg-success/10 text-success'
+      case 'Disciplinary': return 'bg-danger/10 text-danger'
+      case 'Facilities': return 'bg-secondary/10 text-secondary'
+      case 'Residential': return 'bg-warning/10 text-warning'
+      case 'Administrative': return 'bg-accent/10 text-accent'
+      default: return 'bg-muted text-muted-foreground'
     }
   }
 
@@ -265,10 +159,17 @@ export function Policy() {
     return acc
   }, {})
 
+  const stats = [
+    { label: 'Total Policies', value: policies.length, icon: FileText, color: 'primary' },
+    { label: 'Active', value: policies.filter(p => p.status === 'Active').length, icon: CheckCircle, color: 'success' },
+    { label: 'Updated This Month', value: 4, icon: Clock, color: 'warning' },
+    { label: 'Categories', value: 6, icon: AlertCircle, color: 'secondary' },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">University Policies</h1>
           <p className="text-muted-foreground mt-1">
@@ -276,99 +177,72 @@ export function Policy() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setViewMode('list')}
-            className={cn(
-              'p-2 rounded-lg transition-colors',
-              viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            )}
-          >
-            <FileText className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode('grid')}
-            className={cn(
-              'p-2 rounded-lg transition-colors',
-              viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            )}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1 p-1 bg-muted rounded-xl">
+            <button
+              onClick={() => setViewMode('list')}
+              className={cn(
+                'p-2 rounded-lg transition-colors',
+                viewMode === 'list' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={cn(
+                'p-2 rounded-lg transition-colors',
+                viewMode === 'grid' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Grid3X3 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-card border border-border rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{policies.length}</p>
-              <p className="text-sm text-muted-foreground">Total Policies</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{policies.filter(p => p.status === 'Active').length}</p>
-              <p className="text-sm text-muted-foreground">Active</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">4</p>
-              <p className="text-sm text-muted-foreground">Updated This Month</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">6</p>
-              <p className="text-sm text-muted-foreground">Categories</p>
-            </div>
-          </div>
-        </div>
+        {stats.map((stat, idx) => (
+          <Card key={idx}>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  'flex items-center justify-center w-10 h-10 rounded-xl',
+                  stat.color === 'primary' && 'bg-primary/10 text-primary',
+                  stat.color === 'success' && 'bg-success/10 text-success',
+                  stat.color === 'warning' && 'bg-warning/10 text-warning',
+                  stat.color === 'secondary' && 'bg-secondary/10 text-secondary'
+                )}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-foreground">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        {/* Search */}
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="relative w-full md:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
+          <Input
             placeholder="Search policies..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder:text-muted-foreground"
+            className="pl-9"
           />
         </div>
-
-        {/* Category Filter */}
         <div className="flex flex-wrap gap-2">
           {categories.map(category => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={cn(
-                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                'px-3 py-1.5 rounded-xl text-xs font-medium transition-all',
                 selectedCategory === category
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -382,29 +256,26 @@ export function Policy() {
 
       {/* Policies List/Grid */}
       {viewMode === 'list' ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredPolicies.map(policy => (
-            <div
-              key={policy.id}
-              className="bg-card border border-border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg"
-            >
+            <Card key={policy.id} className="overflow-hidden">
               {/* Policy Header */}
               <div
-                className="p-4 cursor-pointer"
+                className="p-5 cursor-pointer hover:bg-muted/30 transition-colors"
                 onClick={() => setExpandedPolicy(expandedPolicy === policy.id ? null : policy.id)}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', getCategoryColor(policy.category))}>
+                      <span className={cn('px-2.5 py-1 rounded-lg text-xs font-medium', getCategoryStyles(policy.category))}>
                         {policy.category}
                       </span>
-                      <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', getStatusColor(policy.status))}>
+                      <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-success/10 text-success">
                         {policy.status}
                       </span>
                       <span className="text-xs text-muted-foreground">v{policy.version}</span>
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground">{policy.title}</h3>
+                    <h3 className="text-base font-semibold text-foreground">{policy.title}</h3>
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{policy.description}</p>
                     <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -418,12 +289,12 @@ export function Policy() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" size="icon-sm">
                       <Download className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
+                    </Button>
+                    <Button variant="ghost" size="icon-sm">
                       <Eye className="w-4 h-4" />
-                    </button>
+                    </Button>
                     {expandedPolicy === policy.id ? (
                       <ChevronDown className="w-5 h-5 text-muted-foreground" />
                     ) : (
@@ -435,57 +306,63 @@ export function Policy() {
 
               {/* Expanded Content */}
               {expandedPolicy === policy.id && (
-                <div className="px-4 pb-4 border-t border-border pt-4">
+                <div className="px-5 pb-5 border-t border-border pt-4 animate-fade-in">
                   <h4 className="font-medium text-foreground mb-3">Key Points:</h4>
                   <ul className="space-y-2">
                     {policy.content.map((point, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <span className="w-5 h-5 bg-primary/10 text-primary rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium">
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex-shrink-0 mt-0.5">
                           {index + 1}
                         </span>
-                        {point}
+                        <span className="text-sm text-muted-foreground">{point}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
-            </div>
+            </Card>
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredPolicies.map(policy => (
-            <div
-              key={policy.id}
-              className="bg-card border border-border rounded-xl p-4 hover:shadow-lg transition-all duration-200 cursor-pointer"
-              onClick={() => setExpandedPolicy(expandedPolicy === policy.id ? null : policy.id)}
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', getCategoryColor(policy.category))}>
-                  {policy.category}
-                </span>
-                <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', getStatusColor(policy.status))}>
-                  {policy.status}
-                </span>
-              </div>
-              <h3 className="font-semibold text-foreground mb-2">{policy.title}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{policy.description}</p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>v{policy.version}</span>
-                <span>{new Date(policy.lastUpdated).toLocaleDateString()}</span>
-              </div>
-            </div>
+            <Card key={policy.id} hover>
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={cn('px-2.5 py-1 rounded-lg text-xs font-medium', getCategoryStyles(policy.category))}>
+                    {policy.category}
+                  </span>
+                  <span className="text-xs text-muted-foreground">v{policy.version}</span>
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-2">{policy.title}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{policy.description}</p>
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <span className="text-xs text-muted-foreground">
+                    Updated: {new Date(policy.lastUpdated).toLocaleDateString()}
+                  </span>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon-sm">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon-sm">
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
-      {/* Empty State */}
       {filteredPolicies.length === 0 && (
-        <div className="text-center py-12 bg-card border border-border rounded-xl">
-          <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">No policies found</h3>
-          <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
-        </div>
+        <Card>
+          <CardContent className="py-12 text-center">
+            <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-medium text-foreground mb-2">No policies found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

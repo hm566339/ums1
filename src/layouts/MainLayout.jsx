@@ -5,7 +5,7 @@ import { Navbar } from '../components/layout/Navbar'
 
 export function MainLayout() {
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar */}
       <Sidebar />
 
@@ -15,8 +15,10 @@ export function MainLayout() {
         <Navbar />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-6">
-          <Outlet />
+        <main className="flex-1 overflow-auto">
+          <div className="p-4 md:p-6 lg:p-8 animate-fade-in">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

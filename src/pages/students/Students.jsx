@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import { Plus, Edit, Trash2, Eye, Download, Upload } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Download, Upload, Users, UserCheck, Building2 } from 'lucide-react'
 import { DataTable } from '../../components/tables/DataTable'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
+import { Card, CardContent } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Input'
 import { Label } from '../../components/ui/Label'
 import { studentData as initialStudentData } from '../../data/dummyData'
+import { cn } from '../../utils/cn'
 
 export function Students() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -86,71 +87,58 @@ export function Students() {
   const inactiveStudents = students.filter(s => s.status === 'Inactive').length
   const departments = [...new Set(students.map(s => s.department))].length
 
+  const stats = [
+    { label: 'Total Students', value: students.length, icon: Users, color: 'primary' },
+    { label: 'Active Students', value: activeStudents, icon: UserCheck, color: 'success' },
+    { label: 'Departments', value: departments, icon: Building2, color: 'info' },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Students Management</h1>
+          <h1 className="text-2xl font-bold text-foreground">Students Management</h1>
           <p className="text-muted-foreground mt-1">Manage all student records and enrollment</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="md">
-            <Upload className="w-4 h-4 mr-2" />
-            Import
+          <Button variant="outline" size="sm">
+            <Upload className="w-4 h-4" />
+            <span>Import</span>
           </Button>
-          <Button variant="outline" size="md">
-            <Download className="w-4 h-4 mr-2" />
-            Export
+          <Button variant="outline" size="sm">
+            <Download className="w-4 h-4" />
+            <span>Export</span>
           </Button>
-          <Button onClick={handleAddStudent} size="md">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Student
+          <Button onClick={handleAddStudent}>
+            <Plus className="w-4 h-4" />
+            <span>Add Student</span>
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Students</p>
-                <p className="text-3xl font-bold text-foreground mt-1">{students.length}</p>
+        {stats.map((stat, idx) => (
+          <Card key={idx}>
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+                </div>
+                <div className={cn(
+                  'flex items-center justify-center w-11 h-11 rounded-xl',
+                  stat.color === 'primary' && 'bg-primary/10 text-primary',
+                  stat.color === 'success' && 'bg-success/10 text-success',
+                  stat.color === 'info' && 'bg-info/10 text-info'
+                )}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
               </div>
-              <div className="p-3 rounded-lg bg-primary/10">
-                <span className="text-2xl">👨‍🎓</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Active Students</p>
-                <p className="text-3xl font-bold text-green-500 mt-1">{activeStudents}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-green-500/10">
-                <span className="text-2xl">✅</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Departments</p>
-                <p className="text-3xl font-bold text-primary mt-1">{departments}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-primary/10">
-                <span className="text-2xl">📚</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Table */}
@@ -160,7 +148,18 @@ export function Students() {
         searchableColumns={['name', 'email', 'department', 'id']}
         columns={[
           { key: 'id', label: 'ID' },
-          { key: 'name', label: 'Name' },
+          { 
+            key: 'name', 
+            label: 'Name',
+            render: (row) => (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-xs font-medium">
+                  {row.name.charAt(0)}
+                </div>
+                <span className="font-medium">{row.name}</span>
+              </div>
+            )
+          },
           { key: 'email', label: 'Email' },
           { key: 'department', label: 'Department' },
           { key: 'semester', label: 'Semester' },
@@ -174,29 +173,29 @@ export function Students() {
           { key: 'status', label: 'Status' },
         ]}
         actions={(student) => (
-          <div className="flex gap-2">
+          <>
             <button
               onClick={() => handleViewStudent(student)}
-              className="p-1 rounded-lg text-primary hover:bg-primary/10 transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
               title="View"
             >
               <Eye className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleEditStudent(student)}
-              className="p-1 rounded-lg text-blue-500 hover:bg-blue-500/10 transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:text-info hover:bg-info/10 transition-colors"
               title="Edit"
             >
               <Edit className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleDelete(student.id)}
-              className="p-1 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"
               title="Delete"
             >
               <Trash2 className="w-4 h-4" />
             </button>
-          </div>
+          </>
         )}
       />
 
@@ -207,9 +206,9 @@ export function Students() {
         title={selectedStudent ? 'Edit Student' : 'Add New Student'}
         size="lg"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
@@ -220,7 +219,7 @@ export function Students() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -232,7 +231,7 @@ export function Students() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
@@ -243,13 +242,13 @@ export function Students() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="gender">Gender</Label>
               <select
                 id="gender"
                 value={formData.gender}
                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                className="w-full h-10 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 required
               >
                 <option value="">Select Gender</option>
@@ -258,13 +257,13 @@ export function Students() {
               </select>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="department">Department</Label>
               <select
                 id="department"
                 value={formData.department}
                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="w-full h-10 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 required
               >
                 <option value="">Select Department</option>
@@ -281,13 +280,13 @@ export function Students() {
               </select>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="semester">Semester</Label>
               <select
                 id="semester"
                 value={formData.semester}
                 onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
-                className="w-full h-10 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 required
               >
                 <option value="">Select Semester</option>
@@ -298,7 +297,7 @@ export function Students() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="address">Address</Label>
             <Input
               id="address"
@@ -308,7 +307,7 @@ export function Students() {
             />
           </div>
 
-          <div className="flex gap-2 justify-end pt-4">
+          <div className="flex gap-3 justify-end pt-4 border-t border-border">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
@@ -328,54 +327,43 @@ export function Students() {
       >
         {selectedStudent && (
           <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold">
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary/20">
                 {selectedStudent.name.charAt(0)}
               </div>
               <div>
                 <h3 className="text-xl font-bold text-foreground">{selectedStudent.name}</h3>
                 <p className="text-muted-foreground">{selectedStudent.id}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Email</p>
-                <p className="text-sm font-medium text-foreground">{selectedStudent.email}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Phone</p>
-                <p className="text-sm font-medium text-foreground">{selectedStudent.phone}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Department</p>
-                <p className="text-sm font-medium text-foreground">{selectedStudent.department}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Semester</p>
-                <p className="text-sm font-medium text-foreground">{selectedStudent.semester}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">CGPA</p>
-                <p className="text-sm font-medium text-foreground">{selectedStudent.cgpa?.toFixed(2) || 'N/A'}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Status</p>
-                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                  selectedStudent.status === 'Active' 
-                    ? 'bg-green-500/10 text-green-700 dark:text-green-400' 
-                    : 'bg-gray-500/10 text-gray-700 dark:text-gray-400'
-                }`}>
+                <span className={cn(
+                  'inline-flex px-2.5 py-1 rounded-lg text-xs font-medium mt-2',
+                  selectedStudent.status === 'Active' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
+                )}>
                   {selectedStudent.status}
                 </span>
               </div>
-              <div className="p-4 rounded-lg bg-muted col-span-2">
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Email', value: selectedStudent.email },
+                { label: 'Phone', value: selectedStudent.phone },
+                { label: 'Department', value: selectedStudent.department },
+                { label: 'Semester', value: selectedStudent.semester },
+                { label: 'CGPA', value: selectedStudent.cgpa?.toFixed(2) || 'N/A' },
+                { label: 'Gender', value: selectedStudent.gender || 'N/A' },
+              ].map((item, idx) => (
+                <div key={idx} className="p-3 rounded-xl bg-muted/50">
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                  <p className="text-sm font-medium text-foreground mt-0.5">{item.value}</p>
+                </div>
+              ))}
+              <div className="p-3 rounded-xl bg-muted/50 col-span-2">
                 <p className="text-xs text-muted-foreground">Address</p>
-                <p className="text-sm font-medium text-foreground">{selectedStudent.address || 'N/A'}</p>
+                <p className="text-sm font-medium text-foreground mt-0.5">{selectedStudent.address || 'N/A'}</p>
               </div>
             </div>
 
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-3 justify-end pt-4 border-t border-border">
               <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
                 Close
               </Button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, Edit, Trash2, Eye, Download, Upload } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Download, Users, UserCheck, Building2 } from 'lucide-react'
 import { DataTable } from '../../components/tables/DataTable'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
@@ -7,6 +7,7 @@ import { Card, CardContent } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Input'
 import { Label } from '../../components/ui/Label'
 import { facultyData as initialFacultyData } from '../../data/dummyData'
+import { cn } from '../../utils/cn'
 
 export function Faculty() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -85,67 +86,54 @@ export function Faculty() {
   const onLeaveFaculty = faculty.filter(f => f.status === 'On Leave').length
   const departments = [...new Set(faculty.map(f => f.department))].length
 
+  const stats = [
+    { label: 'Total Faculty', value: faculty.length, icon: Users, color: 'primary' },
+    { label: 'Active Faculty', value: activeFaculty, icon: UserCheck, color: 'success' },
+    { label: 'Departments', value: departments, icon: Building2, color: 'info' },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Faculty Management</h1>
+          <h1 className="text-2xl font-bold text-foreground">Faculty Management</h1>
           <p className="text-muted-foreground mt-1">Manage teaching staff and faculty members</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="md">
-            <Download className="w-4 h-4 mr-2" />
-            Export
+          <Button variant="outline" size="sm">
+            <Download className="w-4 h-4" />
+            <span>Export</span>
           </Button>
-          <Button onClick={handleAddFaculty} size="md">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Faculty
+          <Button onClick={handleAddFaculty}>
+            <Plus className="w-4 h-4" />
+            <span>Add Faculty</span>
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Faculty</p>
-                <p className="text-3xl font-bold text-foreground mt-1">{faculty.length}</p>
+        {stats.map((stat, idx) => (
+          <Card key={idx}>
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+                </div>
+                <div className={cn(
+                  'flex items-center justify-center w-11 h-11 rounded-xl',
+                  stat.color === 'primary' && 'bg-primary/10 text-primary',
+                  stat.color === 'success' && 'bg-success/10 text-success',
+                  stat.color === 'info' && 'bg-info/10 text-info'
+                )}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
               </div>
-              <div className="p-3 rounded-lg bg-primary/10">
-                <span className="text-2xl">👨‍🏫</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Active Faculty</p>
-                <p className="text-3xl font-bold text-green-500 mt-1">{activeFaculty}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-green-500/10">
-                <span className="text-2xl">✅</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Departments</p>
-                <p className="text-3xl font-bold text-primary mt-1">{departments}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-primary/10">
-                <span className="text-2xl">🏛️</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Table */}
@@ -155,7 +143,18 @@ export function Faculty() {
         searchableColumns={['name', 'email', 'department', 'id']}
         columns={[
           { key: 'id', label: 'ID' },
-          { key: 'name', label: 'Name' },
+          { 
+            key: 'name', 
+            label: 'Name',
+            render: (row) => (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-white text-xs font-medium">
+                  {row.name.charAt(0)}
+                </div>
+                <span className="font-medium">{row.name}</span>
+              </div>
+            )
+          },
           { key: 'email', label: 'Email' },
           { key: 'department', label: 'Department' },
           { key: 'qualification', label: 'Qualification' },
@@ -167,29 +166,29 @@ export function Faculty() {
           { key: 'status', label: 'Status' },
         ]}
         actions={(f) => (
-          <div className="flex gap-2">
+          <>
             <button
               onClick={() => handleViewFaculty(f)}
-              className="p-1 rounded-lg text-primary hover:bg-primary/10 transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
               title="View"
             >
               <Eye className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleEditFaculty(f)}
-              className="p-1 rounded-lg text-blue-500 hover:bg-blue-500/10 transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:text-info hover:bg-info/10 transition-colors"
               title="Edit"
             >
               <Edit className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleDelete(f.id)}
-              className="p-1 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"
               title="Delete"
             >
               <Trash2 className="w-4 h-4" />
             </button>
-          </div>
+          </>
         )}
       />
 
@@ -200,9 +199,9 @@ export function Faculty() {
         title={selectedFaculty ? 'Edit Faculty' : 'Add Faculty'}
         size="lg"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
@@ -213,7 +212,7 @@ export function Faculty() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -225,7 +224,7 @@ export function Faculty() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
@@ -236,13 +235,13 @@ export function Faculty() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="department">Department</Label>
               <select
                 id="department"
                 value={formData.department}
                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="w-full h-10 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 required
               >
                 <option value="">Select Department</option>
@@ -263,13 +262,13 @@ export function Faculty() {
               </select>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="qualification">Qualification</Label>
               <select
                 id="qualification"
                 value={formData.qualification}
                 onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-                className="w-full h-10 rounded-lg border border-border bg-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                className="flex h-10 w-full rounded-xl border border-border bg-input px-3.5 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 required
               >
                 <option value="">Select Qualification</option>
@@ -281,7 +280,7 @@ export function Faculty() {
               </select>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="experience">Experience (Years)</Label>
               <Input
                 id="experience"
@@ -295,7 +294,7 @@ export function Faculty() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="specialization">Specialization</Label>
             <Input
               id="specialization"
@@ -305,7 +304,7 @@ export function Faculty() {
             />
           </div>
 
-          <div className="flex gap-2 justify-end pt-4">
+          <div className="flex gap-3 justify-end pt-4 border-t border-border">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
@@ -325,54 +324,39 @@ export function Faculty() {
       >
         {selectedFaculty && (
           <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold">
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/50">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-secondary/20">
                 {selectedFaculty.name.charAt(0)}
               </div>
               <div>
                 <h3 className="text-xl font-bold text-foreground">{selectedFaculty.name}</h3>
                 <p className="text-muted-foreground">{selectedFaculty.id} - {selectedFaculty.department}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Email</p>
-                <p className="text-sm font-medium text-foreground">{selectedFaculty.email}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Phone</p>
-                <p className="text-sm font-medium text-foreground">{selectedFaculty.phone}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Qualification</p>
-                <p className="text-sm font-medium text-foreground">{selectedFaculty.qualification}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Specialization</p>
-                <p className="text-sm font-medium text-foreground">{selectedFaculty.specialization || 'N/A'}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Experience</p>
-                <p className="text-sm font-medium text-foreground">{selectedFaculty.experience} years</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-xs text-muted-foreground">Status</p>
-                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                  selectedFaculty.status === 'Active' 
-                    ? 'bg-green-500/10 text-green-700 dark:text-green-400' 
-                    : 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
-                }`}>
+                <span className={cn(
+                  'inline-flex px-2.5 py-1 rounded-lg text-xs font-medium mt-2',
+                  selectedFaculty.status === 'Active' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
+                )}>
                   {selectedFaculty.status}
                 </span>
               </div>
-              <div className="p-4 rounded-lg bg-muted col-span-2">
-                <p className="text-xs text-muted-foreground">Joining Date</p>
-                <p className="text-sm font-medium text-foreground">{selectedFaculty.joiningDate || 'N/A'}</p>
-              </div>
             </div>
 
-            <div className="flex gap-2 justify-end">
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Email', value: selectedFaculty.email },
+                { label: 'Phone', value: selectedFaculty.phone },
+                { label: 'Qualification', value: selectedFaculty.qualification },
+                { label: 'Specialization', value: selectedFaculty.specialization || 'N/A' },
+                { label: 'Experience', value: `${selectedFaculty.experience} years` },
+                { label: 'Joining Date', value: selectedFaculty.joiningDate || 'N/A' },
+              ].map((item, idx) => (
+                <div key={idx} className="p-3 rounded-xl bg-muted/50">
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                  <p className="text-sm font-medium text-foreground mt-0.5">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4 border-t border-border">
               <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
                 Close
               </Button>
