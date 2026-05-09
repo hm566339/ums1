@@ -2,12 +2,13 @@ import React from 'react'
 import { cn } from '../../utils/cn'
 
 export const Card = React.forwardRef(
-  ({ className, hover = false, ...props }, ref) => (
+  ({ className, hover = false, accent = false, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        'rounded-2xl border border-border bg-card shadow-card transition-all duration-200',
-        hover && 'hover:shadow-elevated hover:-translate-y-0.5 cursor-pointer',
+        'rounded-[20px] border border-border bg-card shadow-card transition-all duration-300',
+        hover && 'hover:shadow-elevated hover:-translate-y-1 cursor-pointer',
+        accent && 'card-gold-border',
         className
       )}
       {...props}
@@ -20,7 +21,7 @@ export const CardHeader = React.forwardRef(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('flex flex-col space-y-1.5 p-5 pb-4', className)}
+      className={cn('flex flex-col space-y-2 p-6 pb-4', className)}
       {...props}
     />
   )
@@ -32,7 +33,7 @@ export const CardTitle = React.forwardRef(
     <h3
       ref={ref}
       className={cn(
-        'text-base font-semibold leading-tight tracking-tight text-foreground',
+        'text-lg font-bold leading-tight tracking-tight text-foreground',
         className
       )}
       {...props}
@@ -54,7 +55,7 @@ CardDescription.displayName = 'CardDescription'
 
 export const CardContent = React.forwardRef(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('p-5 pt-0', className)} {...props} />
+    <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
   )
 )
 CardContent.displayName = 'CardContent'
@@ -63,7 +64,7 @@ export const CardFooter = React.forwardRef(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('flex items-center p-5 pt-0', className)}
+      className={cn('flex items-center p-6 pt-0', className)}
       {...props}
     />
   )
